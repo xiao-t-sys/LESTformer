@@ -1,8 +1,7 @@
 # LESTformer: Locally Enhanced Spatio-Temporal Transformer for Traffic Speed Prediction
 
-> **Ting Tong, Yuelei Xiao***
-> School of Modern Posts, Xi'an University of Posts and Telecommunications, Xi'an, China
-> *Corresponding author: xiaoyuelei@xupt.edu.cn*
+> **Ting Tong***
+
 
 ---
 
@@ -20,7 +19,7 @@ On **PEMS-BAY**, LESTformer outperforms all baselines across every forecasting h
 
 ## Architecture
 
-![LESTformer Overall Architecture](architecture.png)
+<img width="1116" height="460" alt="architecture" src="https://github.com/user-attachments/assets/4212aaea-34a4-4c44-8f7f-416318be47f3" />
 
 *Fig. 1 — Overall architecture of LESTformer. The model takes historical traffic observations X as input and produces future predictions Ŷ through four sequential components: Embedding layer, Temporal Block, Spatial Block, and Star Block.*
 
