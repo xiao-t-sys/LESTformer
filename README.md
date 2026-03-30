@@ -7,7 +7,7 @@
 
 ## Overview
 
-LESTformer is a novel spatio-temporal Transformer architecture for traffic speed prediction. Built upon STAEformer, it introduces three tightly integrated innovations — windowed temporal attention, locally-aware spatial attention, and high-dimensional nonlinear feature transformation — to jointly address the key limitations of existing traffic forecasting models:
+LESTformer is a novel spatio-temporal Transformer architecture for traffic speed prediction. Its core design comprises three tightly integrated components — windowed temporal attention, locally-aware spatial attention, and high-dimensional nonlinear feature transformation — which jointly address the key limitations of existing traffic forecasting models: 
 
 - **Limited sensitivity to local fluctuations** in traffic patterns
 - **Quadratic computational complexity** of standard Transformers over long sequences
