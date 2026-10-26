@@ -29,14 +29,12 @@ On **PEMS-BAY**, LESTformer obtains the best result among the compared baselines
 
 **Temporal Block** — Partitions the time axis into non-overlapping windows of size `W` and applies causal multi-head self-attention within each window. A learnable positional encoding is added before attention.
 - The theoretical cost of windowed attention is O(T·W·D), versus O(T²·D) for full temporal attention. This is a theoretical statement only: **it has not been validated empirically on long inputs.**
-- All reported experiments use T = W = 12. In this setting windowed attention coincides with full causal attention, so **no actual complexity reduction is realized** in the reported results.
 - Windows are non-overlapping and the current design has **no mechanism for exchanging information across windows**; temporal dependencies are modeled only within each window.
 
 **Spatial Block** — Each layer combines two components, fused by a learned sigmoid gate:
 - *Intra-node feature-wise local enhancement* (implemented in `LA.py`, originally named "LocalAttention"). It applies SoftPool along the **feature dimension of each node**. It does **not** operate across neighboring graph nodes and therefore does **not** model inter-node spatial locality. In the concatenated feature vector (speed, time-of-day, day-of-week, and adaptive embeddings), adjacent coordinates are neighboring latent feature subspaces, not spatial neighbors. The module acts as a local feature-mixing operator that adds a local inductive bias before the linear projection.
 - *Inter-node multi-head self-attention*, which alone models global spatial dependencies among nodes.
 
-Supports four fusion modes: `integrated` (default), `parallel`, `sequential`, and `adaptive`.
 
 **Star Block** — Applies multi-scale depthwise convolutions along both temporal and spatial axes, followed by an MLP. Element-wise multiplication implicitly maps features into an exponentially high-dimensional nonlinear space. Learnable temporal aggregation weights select the final representation across time steps. Its advantage over standard FFN and CNN alternatives is modest.
 
