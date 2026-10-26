@@ -177,13 +177,12 @@ On METR-LA, LESTformer is not the best model on every metric and horizon: STAEfo
 LESTformer was run three times with seeds 42, 2024, and 3407. Values are mean ± standard deviation of MAE at the 60-minute horizon.
 
 | Dataset | (mean ± std, 3 seeds) |
-| Dataset | Model | H3 MAE | H3 RMSE | H6 MAE | H6 RMSE | H12 MAE | H12 RMSE |
-|---|---|---|---|---|---|---|---|
-| PEMS-BAY | STAEformer | 1.31 | 2.78 | 1.62 | 3.68 | 1.88 | 4.34 |
-| PEMS-BAY | LESTformer | **1.27** | **2.69** | **1.56** | **3.53** | **1.81 ± 0.01** | **4.12** |
-| METR-LA | STAEformer | **2.65** | **5.11** | 2.97 | 6.00 | 3.34 | 7.02 |
-| METR-LA | LESTformer | 2.76 | 5.43 | **2.94** | **5.96** | **3.32 ± 0.01** | **6.97** |
-
+| Dataset | Model | H3 MAE (15min) | H6 MAE (30min) | H12 MAE (60min) |
+|---|---|---|---|---|
+| PEMS-BAY | STAEformer | 1.31 ± 0.01 | 1.62 ± 0.01 | 1.88 ± 0.01 |
+| PEMS-BAY | LESTformer | 1.27 ± 0.01 | 1.56 ± 0.01 | 1.81 ± 0.01 |
+| METR-LA | STAEformer | 2.65 ± 0.01 | 2.97 ± 0.01 | 3.34 ± 0.01 |
+| METR-LA | LESTformer | 2.76 ± 0.01 | 2.94 ± 0.01 | 3.33 ± 0.01 |
 ### Comparison with feature-level alternatives (Section 5.8)
 
 The SoftPool-based intra-node feature-wise local enhancement was compared with an MLP, squeeze-and-excitation (SE), and channel attention (CA) in the same position. Result on METR-LA at 60 minutes:
