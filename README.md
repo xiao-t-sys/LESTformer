@@ -104,16 +104,27 @@ The following are provided in this repository for assessing the reported results
 
 ### Training settings (Section 5.2 of the paper)
 
-Adam optimizer, learning rate 0.001, batch size 16, up to 50 epochs, early stopping if the validation loss does not improve for 20 consecutive epochs. Experiments were run on a single NVIDIA RTX 3090 GPU. Final hyperparameters were selected by grid search on validation performance.
+Adam optimizer, learning rate 0.001, batch size 16, up to 200 epochs, early stopping if the validation loss does not improve for 70 consecutive epochs. Experiments were run on a single NVIDIA RTX 3090 GPU. Final hyperparameters were selected by grid search on validation performance.
 
 ### Grid-search ranges used for model selection
 
-| Hyperparameter | Search range | Selected |
+## Hyperparameter Search Space
+
+To select the optimal hyperparameters, we conducted a systematic manual grid search on the validation set. The search ranges and the final selected values for both datasets are summarized below.
+
+| Hyperparameter | Search range | Selected (METR-LA / PEMS-BAY) |
 |---|---|---|
-| Learning rate | [TODO: fill in from your search] | 0.001 |
-| Batch size | [TODO] | 16 |
-| Embedding dimension | [TODO] | [TODO] |
-| [TODO: other searched parameters, e.g. window size W, number of layers, heads, dropout] | [TODO] | [TODO] |
+| Learning rate | `{1e-4, 5e-4, 8e-4, 1e-3, 2e-3}` | 0.0008 / 0.001 |
+| Batch size | `{8, 16, 32, 64}` | 16 / 16 |
+| Input embedding dimension | `{16, 24, 32}` | 24 / 24 |
+| ToD / DoW embedding dims | `{8, 16, 24}` | 24 / 8 (LA), 24 / 24 (BAY) |
+| Spatial / Adaptive dims | `{0, 8, 16, 32, 40}` | 8 / 40 (LA), 0 / 32 (BAY) |
+| Window size (W) | `{6, 12}` | 12 / 12 |
+| Number of layers (L) | `{1, 2, 3, 4}` | 3 / 2 |
+| Number of heads | `{2, 4, 8}` | 4 / 4 |
+| Temporal depth | `{0, 2}` | 2 / 0 |
+| Feed-forward dim | `{128, 256}` | 128 / 128 |
+| Dropout rate | `{0.1, 0.15, 0.2, 0.3}` | 0.1 / 0.1 |
 
 ### Source of baseline results
 
