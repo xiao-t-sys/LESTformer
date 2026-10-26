@@ -170,7 +170,7 @@ LESTformer was run three times with seeds 42, 2024, and 3407. Values are mean ±
 | Dataset | MAE@60min (mean ± std, 3 seeds) |
 |---|---|
 | METR-LA | 3.33 ± 0.01 |
-| PEMS-BAY | 1.81 ± 0.01] |
+| PEMS-BAY | 1.81 ± 0.01 |
 
 
 ### Comparison with feature-level alternatives (Section 5.8)
