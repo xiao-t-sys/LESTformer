@@ -2,18 +2,18 @@
 
 > **Ting Tong***
 
-
 ---
 
 ## Overview
 
-LESTformer is a novel spatio-temporal Transformer architecture for traffic speed prediction. Its core design comprises three tightly integrated components — windowed temporal attention, locally-aware spatial attention, and high-dimensional nonlinear feature transformation — which jointly address the key limitations of existing traffic forecasting models: 
+LESTformer is a spatio-temporal Transformer for traffic speed prediction. It combines three components: windowed temporal attention, a spatial block that couples intra-node feature-wise local enhancement with global inter-node attention, and a Star block for high-dimensional nonlinear feature transformation. The design targets the following limitations of existing traffic forecasting models:
 
-- **Limited sensitivity to local fluctuations** in traffic patterns
-- **Quadratic computational complexity** of standard Transformers over long sequences
-- **Inadequate deep fusion** of local and global spatio-temporal features
+- **Limited sensitivity to fine-grained local fluctuations** in the node feature representation
+- **Insufficient fusion** of local feature patterns and global inter-node spatio-temporal dependencies
 
-On **PEMS-BAY**, LESTformer outperforms all baselines across every forecasting horizon, achieving a MAPE of **3.83%** at 60 minutes. On **METR-LA**, it achieves a MAPE of **9.59%** at the 60-minute horizon, with especially strong performance in long-term forecasting.
+On **PEMS-BAY**, LESTformer obtains the best result among the compared baselines at every forecasting horizon, with a MAPE of **3.83%** at 60 minutes. On **METR-LA**, it obtains a MAPE of **9.59%** at 60 minutes. Its advantage on METR-LA is concentrated at longer horizons: it is **not** the best model for every metric and every horizon (for example, at 15 minutes STAEformer is better on MAE and RMSE).
+
+> **Scope note.** All experiments use two California highway speed datasets with a 12-step input and 12-step output configuration. Generalization to other cities, other traffic variables, longer historical contexts, missing-data conditions, and distribution shifts has **not** been validated (see [Limitations](#limitations)).
 
 ---
 
@@ -27,11 +27,18 @@ On **PEMS-BAY**, LESTformer outperforms all baselines across every forecasting h
 
 **Embedding layer** — Integrates four complementary sources into a unified representation: feature embedding (Conv2d + SE channel attention), time-of-day embedding, day-of-week embedding, and adaptive (node-time) embedding.
 
-**Temporal Block** — Partitions the time axis into non-overlapping windows of size `W` and applies causal multi-head self-attention within each window. Reduces temporal complexity from O(T²·D) to O(T·W·D). A learnable positional encoding is added before attention.
+**Temporal Block** — Partitions the time axis into non-overlapping windows of size `W` and applies causal multi-head self-attention within each window. A learnable positional encoding is added before attention.
+- The theoretical cost of windowed attention is O(T·W·D), versus O(T²·D) for full temporal attention. This is a theoretical statement only: **it has not been validated empirically on long inputs.**
+- All reported experiments use T = W = 12. In this setting windowed attention coincides with full causal attention, so **no actual complexity reduction is realized** in the reported results.
+- Windows are non-overlapping and the current design has **no mechanism for exchanging information across windows**; temporal dependencies are modeled only within each window.
 
-**Spatial Block** — Embeds local importance modeling directly inside the spatial attention layer. A LocalAttention module (SoftPool along the feature dimension) captures fine-grained per-node patterns; a standard multi-head attention models global inter-node correlations; both are fused via a learned sigmoid gating mechanism. Supports four fusion modes: `integrated` (default), `parallel`, `sequential`, and `adaptive`.
+**Spatial Block** — Each layer combines two components, fused by a learned sigmoid gate:
+- *Intra-node feature-wise local enhancement* (implemented in `LA.py`, originally named "LocalAttention"). It applies SoftPool along the **feature dimension of each node**. It does **not** operate across neighboring graph nodes and therefore does **not** model inter-node spatial locality. In the concatenated feature vector (speed, time-of-day, day-of-week, and adaptive embeddings), adjacent coordinates are neighboring latent feature subspaces, not spatial neighbors. The module acts as a local feature-mixing operator that adds a local inductive bias before the linear projection.
+- *Inter-node multi-head self-attention*, which alone models global spatial dependencies among nodes.
 
-**Star Block** — Applies multi-scale depthwise convolutions along both temporal and spatial axes, followed by an MLP. Element-wise multiplication implicitly maps features into an exponentially high-dimensional nonlinear space. Learnable temporal aggregation weights select the final representation across time steps.
+Supports four fusion modes: `integrated` (default), `parallel`, `sequential`, and `adaptive`.
+
+**Star Block** — Applies multi-scale depthwise convolutions along both temporal and spatial axes, followed by an MLP. Element-wise multiplication implicitly maps features into an exponentially high-dimensional nonlinear space. Learnable temporal aggregation weights select the final representation across time steps. Its advantage over standard FFN and CNN alternatives is modest.
 
 ---
 
@@ -59,11 +66,11 @@ LESTformer/
 ├── model/
 │   ├── LESTformer.py   # Main model definition
 │   ├── star.py                        # Star
-│   └── LA.py                          # LocalAttention
+│   └── LA.py                          # Intra-node feature-wise local enhancement (SoftPool)
 ├── data/
 │   └── ...                            # Dataset files (METR-LA, PEMS-BAY)
 ├── configs/
-│   └── ...                            # Training configuration files
+│   └── ...                            # Training configuration files (YAML)
 ├── train.py                           # Training entry point
 ├── test.py                            # Evaluation entry point
 ├── architecture.png                   # Model architecture figure
@@ -84,12 +91,35 @@ Download the METR-LA and PEMS-BAY datasets from the [DCRNN repository](https://g
 Input features per time step per node: `[traffic speed, time-of-day, day-of-week]`
 Data split: **70% train / 10% validation / 20% test** (chronological)
 Normalization: Z-score
+Input / output configuration: 12 steps in, 12 steps out (T = 12)
+
+---
+
+## Reproducibility
+
+The following are provided in this repository for assessing the reported results:
+
+- **Implementation**: model definition under `model/`.
+- **Hyperparameters**: complete settings in the YAML files under `configs/`.
+- **Preprocessing and evaluation**: data loading, Z-score normalization, chronological 7:1:2 split, and the evaluation script `test.py`.
+- **Random seeds**: the default seed is **42**. The repeated runs reported below use seeds **42, 2024, and 3407**.
+
+### Grid-search ranges used for model selection
+
+| Hyperparameter | Search range | Selected |
+|---|---|---|
+| Learning rate | [TODO: fill in from your search] | [TODO] |
+| Batch size | [TODO] | [TODO] |
+| Embedding dimension | [TODO] | [TODO] |
+| [TODO: other searched parameters, e.g. window size W, number of layers, heads, dropout] | [TODO] | [TODO] |
+
+### Source of baseline results
+
+Baseline results (e.g., DCRNN, STAEformer, STGformer) are **taken from their original publications** and were **not re-run** in our computational environment. They follow the same public datasets, the same chronological 7:1:2 split, and the same 12-step input / 12-step output protocol as this work. Only LESTformer (and its ablation / comparison variants) was run in our environment.
 
 ---
 
 ## Quick Start
-
-### Verify the model
 
 ### Training
 
@@ -107,6 +137,8 @@ python test.py --dataset PEMS-BAY --checkpoint path/to/checkpoint.pth
 
 ## Results
 
+Single-run results with seed 42. Baseline numbers are from the original publications.
+
 ### PEMS-BAY
 
 | Model | MAE@15min | RMSE@15min | MAPE@15min | MAE@60min | RMSE@60min | MAPE@60min |
@@ -121,16 +153,53 @@ python test.py --dataset PEMS-BAY --checkpoint path/to/checkpoint.pth
 | Model | MAE@15min | RMSE@15min | MAPE@15min | MAE@60min | RMSE@60min | MAPE@60min |
 |---|---|---|---|---|---|---|
 | DCRNN | 2.67 | 5.16 | 6.86% | 3.54 | 7.47 | 10.32% |
-| STAEformer | 2.65 | 5.11 | 6.85% | 3.34 | 7.02 | 9.70% |
+| STAEformer | **2.65** | **5.11** | 6.85% | 3.34 | 7.02 | 9.70% |
 | STGformer | 2.78 | 5.49 | 7.48% | 3.47 | 7.37 | 10.35% |
-| **LESTformer** | **2.76** | **5.43** | **6.81%** | **3.32** | **6.97** | **9.59%** |
+| **LESTformer** | 2.76 | 5.43 | **6.81%** | **3.32** | **6.97** | **9.59%** |
+
+On METR-LA, LESTformer is not the best model on every metric and horizon: STAEformer is better on MAE and RMSE at 15 minutes. Claims of superiority are limited to the differences supported by the repeated runs below.
+
+### Robustness: repeated runs
+
+LESTformer was run three times with seeds 42, 2024, and 3407. Values are mean ± standard deviation of MAE at the 60-minute horizon.
+
+| Dataset | MAE@60min (mean ± std, 3 seeds) |
+|---|---|
+| METR-LA | 3.33 ± 0.01 |
+| PEMS-BAY | [TODO: X.XX ± 0.0X] |
+
+[TODO: add full mean ± std for RMSE and MAPE and the other horizons if reported in Section 5.4.]
+
+### Comparison with feature-level alternatives (Section 5.8)
+
+The SoftPool-based intra-node feature-wise local enhancement was compared with an MLP, squeeze-and-excitation (SE), and channel attention (CA) in the same position. Result on METR-LA at 60 minutes:
+
+| Variant | MAE@60min |
+|---|---|
+| **SoftPool (ours)** | **3.32** |
+| MLP | 3.34 |
+| SE | 3.34 |
+| CA | 3.33 |
+
+The differences are small (0.01–0.02 MAE). Results for the other metrics, horizons, and PEMS-BAY are in Section 5.8 of the paper. [TODO: add the single-seed vs. multi-seed note if these variants were not repeated.]
 
 ---
 
 ## Computational Efficiency
 
-Measured on an NVIDIA RTX 3090 GPU.
+Measured on an NVIDIA RTX 3090 GPU with T = W = 12 only. [TODO: fill in parameters / training time / inference time.]
 
+No scalability analysis over longer inputs (e.g., T = 24, 48, 96) or comparison with full temporal attention is reported, so no claim is made about efficiency on long sequences.
+
+---
+
+## Limitations
+
+- Evaluation covers only two California highway speed datasets (METR-LA, PEMS-BAY) with a 12-step input and 12-step output configuration.
+- Generalization to other cities, other traffic variables, longer historical contexts, missing-data conditions, and distribution shifts has not been validated.
+- The windowed temporal attention does not exchange information across non-overlapping windows, and its efficiency benefit for long sequences has not been verified (T = W = 12 in all experiments).
+- The intra-node feature-wise local enhancement models feature-axis structure within each node, not inter-node spatial locality.
+- On METR-LA, LESTformer does not obtain the best result on every metric and horizon, and the advantage of the Star block over FFN and CNN alternatives is modest.
 
 ---
 
