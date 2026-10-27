@@ -190,9 +190,9 @@ The SoftPool-based intra-node feature-wise local enhancement was compared with a
 | Variant | MAE@60min | RMSE@60min |
 |---|---|---|
 | **SoftPool (ours)** | **3.32** | **6.97** |
-| MLP | 3.34 | 7.03 |
-| SE | 3.34 | 7.02 |
-| CA | 3.33 | 7.01 |
+| MLP | 3.39 | 7.28 |
+| SE | 3.39 | 7.27 |
+| CA | 3.41 | 7.30 |
 
 The differences are small (0.01–0.02 in MAE). Results for the other metrics, horizons, and PEMS-BAY are in Section 5.8 of the paper. [TODO: state whether these variants were run with a single seed or repeated.]
 
