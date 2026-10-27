@@ -118,7 +118,7 @@ To select the optimal hyperparameters, we conducted a systematic manual grid sea
 | Batch size | `{8, 16, 32, 64}` | 16 / 16 |
 | Input embedding dimension | `{16, 24, 32}` | 24 / 24 |
 | ToD / DoW embedding dims | `{8, 16, 24}` | 24 / 8 (LA), 24 / 24 (BAY) |
-| Spatial / Adaptive dims | `{0, 8, 16, 32, 40}` | 8 / 40 (LA), 0 / 32 (BAY) |
+| Spatial / Adaptive dims | `{0, 8, 16, 32, 40}` | 8 / 40 (LA), 8 / 32 (BAY) |
 | Window size (W) | `{6, 12}` | 12 / 12 |
 | Number of layers (L) | `{1, 2, 3, 4}` | 3 / 2 |
 | Number of heads | `{2, 4, 8}` | 4 / 4 |
