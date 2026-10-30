@@ -122,7 +122,7 @@ To select the optimal hyperparameters, we conducted a systematic manual grid sea
 | Window size (W) | `{6, 12}` | 12 / 12 |
 | Number of layers (L) | `{1, 2, 3, 4}` | 3 / 2 |
 | Number of heads | `{2, 4, 8}` | 4 / 4 |
-| Temporal depth | `{0, 2}` | 2 / 0 |
+| Temporal depth | `{2, 4}` | 4 / 2 |
 | Feed-forward dim | `{128, 256}` | 128 / 128 |
 | Dropout rate | `{0.1, 0.15, 0.2, 0.3}` | 0.1 / 0.1 |
 
