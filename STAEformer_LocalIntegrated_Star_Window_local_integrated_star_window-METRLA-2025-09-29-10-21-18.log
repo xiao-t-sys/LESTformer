@@ -1,0 +1,229 @@
+数据集: METRLA
+应用数据裁剪: 1%分位数=0.00, 99%分位数=69.67
+使用RobustScaler: 中位数=62.56, IQR=12.25
+Trainset:	x-(23974, 12, 207, 3)	y-(23974, 12, 207, 1)
+Valset:  	x-(3425, 12, 207, 3)  	y-(3425, 12, 207, 1)
+Testset:	x-(6850, 12, 207, 3)	y-(6850, 12, 207, 1)
+
+LocalAttention学习率: 0.00054
+Star学习率: 0.00047999999999999996
+基础学习率: 0.0006
+--------- STAEformer_LocalIntegrated_Star_Window ---------
+{
+    "num_nodes": 207,
+    "in_steps": 12,
+    "out_steps": 12,
+    "train_size": 0.7,
+    "val_size": 0.1,
+    "time_of_day": true,
+    "day_of_week": true,
+    "lr": 0.0006,
+    "weight_decay": 0.0003,
+    "milestones": [
+        20,
+        30
+    ],
+    "lr_decay_rate": 0.1,
+    "batch_size": 16,
+    "max_epochs": 70,
+    "early_stop": 30,
+    "use_cl": false,
+    "cl_step_size": 2500,
+    "clip_grad": 3.0,
+    "model_args": {
+        "num_nodes": 207,
+        "in_steps": 12,
+        "out_steps": 12,
+        "steps_per_day": 288,
+        "input_dim": 3,
+        "output_dim": 1,
+        "input_embedding_dim": 24,
+        "tod_embedding_dim": 24,
+        "dow_embedding_dim": 8,
+        "spatial_embedding_dim": 8,
+        "adaptive_embedding_dim": 40,
+        "feed_forward_dim": 128,
+        "num_heads": 4,
+        "num_layers": 3,
+        "dropout": 0.1,
+        "use_mixed_proj": true,
+        "temporal_depth": 2,
+        "temporal_heads": 2,
+        "window_size": 12,
+        "use_star_enhancement": true,
+        "star_mlp_ratio": 3,
+        "star_conv_mode": "mixed",
+        "star_aggregation": "weighted",
+        "use_local_attention": true,
+        "local_enhancement_mode": "integrated",
+        "startconv_mode": "enhanced_postfusion",
+        "device": "cuda:0"
+    },
+    "eps": 1e-08
+}
+====================================================================================================
+Layer (type:depth-idx)                             Output Shape              Param #
+====================================================================================================
+STAEformer                                         [16, 12, 207, 1]          101,028
+├─Embedding: 1-1                                   [16, 12, 207, 24]         6,912
+├─Embedding: 1-2                                   [16, 12, 207, 8]          56
+├─EnhancedStartConv: 1-3                           [16, 24, 207, 12]         --
+│    └─Conv2d: 2-1                                 [16, 24, 207, 12]         96
+│    └─Sequential: 2-2                             [16, 24, 207, 12]         --
+│    │    └─Conv2d: 3-1                            [16, 48, 207, 12]         480
+│    │    └─BatchNorm2d: 3-2                       [16, 48, 207, 12]         96
+│    │    └─GELU: 3-3                              [16, 48, 207, 12]         --
+│    │    └─Conv2d: 3-4                            [16, 24, 207, 12]         1,176
+│    │    └─BatchNorm2d: 3-5                       [16, 24, 207, 12]         48
+│    │    └─GELU: 3-6                              [16, 24, 207, 12]         --
+│    └─Sequential: 2-3                             [16, 24, 1, 1]            --
+│    │    └─AdaptiveAvgPool2d: 3-7                 [16, 24, 1, 1]            --
+│    │    └─Conv2d: 3-8                            [16, 1, 1, 1]             25
+│    │    └─ReLU: 3-9                              [16, 1, 1, 1]             --
+│    │    └─Conv2d: 3-10                           [16, 24, 1, 1]            48
+│    │    └─Sigmoid: 3-11                          [16, 24, 1, 1]            --
+├─Temporal_block: 1-4                              [16, 104, 207, 1]         1,248
+│    └─ModuleList: 2-4                             --                        --
+│    │    └─ModuleList: 3-12                       --                        70,432
+│    │    └─ModuleList: 3-13                       --                        70,432
+├─ModuleList: 1-5                                  --                        --
+│    └─LocalEnhancedSelfAttentionLayer: 2-5        [16, 1, 207, 104]         --
+│    │    └─LocalAttention_4D: 3-14                [16, 1, 207, 104]         6,240
+│    │    └─AttentionLayer: 3-15                   [16, 1, 207, 104]         43,680
+│    │    └─Dropout: 3-16                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-17                        [16, 1, 207, 104]         208
+│    │    └─Sequential: 3-18                       [16, 1, 207, 104]         32,656
+│    │    └─Sequential: 3-19                       [16, 1, 207, 104]         26,856
+│    │    └─Dropout: 3-20                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-21                        [16, 1, 207, 104]         208
+│    └─LocalEnhancedSelfAttentionLayer: 2-6        [16, 1, 207, 104]         --
+│    │    └─LocalAttention_4D: 3-22                [16, 1, 207, 104]         6,240
+│    │    └─AttentionLayer: 3-23                   [16, 1, 207, 104]         43,680
+│    │    └─Dropout: 3-24                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-25                        [16, 1, 207, 104]         208
+│    │    └─Sequential: 3-26                       [16, 1, 207, 104]         32,656
+│    │    └─Sequential: 3-27                       [16, 1, 207, 104]         26,856
+│    │    └─Dropout: 3-28                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-29                        [16, 1, 207, 104]         208
+│    └─LocalEnhancedSelfAttentionLayer: 2-7        [16, 1, 207, 104]         --
+│    │    └─LocalAttention_4D: 3-30                [16, 1, 207, 104]         6,240
+│    │    └─AttentionLayer: 3-31                   [16, 1, 207, 104]         43,680
+│    │    └─Dropout: 3-32                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-33                        [16, 1, 207, 104]         208
+│    │    └─Sequential: 3-34                       [16, 1, 207, 104]         32,656
+│    │    └─Sequential: 3-35                       [16, 1, 207, 104]         26,856
+│    │    └─Dropout: 3-36                          [16, 1, 207, 104]         --
+│    │    └─LayerNorm: 3-37                        [16, 1, 207, 104]         208
+├─Star_Block_4D: 1-6                               [16, 12, 207, 104]        --
+│    └─DepthWiseConv_4D: 2-8                       [16, 12, 207, 104]        --
+│    │    └─Conv1d: 3-38                           [3312, 104, 12]           728
+│    │    └─BatchNorm1d: 3-39                      [3312, 104, 12]           208
+│    │    └─Conv1d: 3-40                           [192, 104, 207]           728
+│    │    └─BatchNorm1d: 3-41                      [192, 104, 207]           208
+│    │    └─Linear: 3-42                           [16, 12, 207, 104]        21,736
+│    └─Linear: 2-9                                 [16, 12, 207, 312]        32,760
+│    └─Linear: 2-10                                [16, 12, 207, 312]        32,760
+│    └─ReLU6: 2-11                                 [16, 12, 207, 312]        --
+│    └─Sequential: 2-12                            [16, 12, 207, 104]        --
+│    │    └─Linear: 3-43                           [16, 12, 207, 104]        32,552
+│    │    └─LayerNorm: 3-44                        [16, 12, 207, 104]        208
+│    └─DepthWiseConv_4D: 2-13                      [16, 12, 207, 104]        --
+│    │    └─Conv1d: 3-45                           [3312, 104, 12]           728
+│    │    └─BatchNorm1d: 3-46                      [3312, 104, 12]           208
+│    └─DropPath: 2-14                              [16, 12, 207, 104]        --
+├─Linear: 1-7                                      [16, 207, 12]             1,260
+====================================================================================================
+Total params: 705,705
+Trainable params: 705,705
+Non-trainable params: 0
+Total mult-adds (M): 452.45
+====================================================================================================
+Input size (MB): 0.48
+Forward/backward pass size (MB): 914.54
+Params size (MB): 2.20
+Estimated Total Size (MB): 917.21
+====================================================================================================
+
+Loss: MaskedMAELoss
+架构: CNN特征提取 + 时间窗口注意力 + 局部增强空间注意力(integrated) + Star高维非线性增强
+核心创新: 空间注意力内嵌入LocalAttention策略
+
+2025-09-29 10:24:31.383197 Epoch 1  	Train Loss = 3.74289 Val Loss = 3.15106
+2025-09-29 10:27:10.865186 Epoch 2  	Train Loss = 3.27168 Val Loss = 3.00249
+2025-09-29 10:30:27.175045 Epoch 3  	Train Loss = 3.13779 Val Loss = 3.01679
+2025-09-29 10:33:46.305998 Epoch 4  	Train Loss = 3.06899 Val Loss = 2.86636
+2025-09-29 10:37:05.614873 Epoch 5  	Train Loss = 3.01265 Val Loss = 2.85646
+2025-09-29 10:40:24.241173 Epoch 6  	Train Loss = 2.97229 Val Loss = 2.81167
+2025-09-29 10:43:43.356891 Epoch 7  	Train Loss = 2.93210 Val Loss = 2.82843
+2025-09-29 10:47:02.405582 Epoch 8  	Train Loss = 2.89720 Val Loss = 2.78083
+2025-09-29 10:50:21.647660 Epoch 9  	Train Loss = 2.86983 Val Loss = 2.79580
+2025-09-29 10:53:40.574242 Epoch 10  	Train Loss = 2.84933 Val Loss = 2.75913
+2025-09-29 10:56:59.207195 Epoch 11  	Train Loss = 2.82808 Val Loss = 2.77808
+2025-09-29 11:00:18.175921 Epoch 12  	Train Loss = 2.81304 Val Loss = 2.73358
+2025-09-29 11:03:37.381291 Epoch 13  	Train Loss = 2.80164 Val Loss = 2.74830
+2025-09-29 11:06:56.300906 Epoch 14  	Train Loss = 2.79115 Val Loss = 2.71432
+2025-09-29 11:10:15.221130 Epoch 15  	Train Loss = 2.78075 Val Loss = 2.76383
+2025-09-29 11:13:33.939156 Epoch 16  	Train Loss = 2.77104 Val Loss = 2.72347
+2025-09-29 11:16:52.934382 Epoch 17  	Train Loss = 2.76514 Val Loss = 2.72094
+2025-09-29 11:20:12.035739 Epoch 18  	Train Loss = 2.75663 Val Loss = 2.71208
+2025-09-29 11:23:30.883128 Epoch 19  	Train Loss = 2.75137 Val Loss = 2.72933
+2025-09-29 11:26:49.868109 Epoch 20  	Train Loss = 2.74423 Val Loss = 2.71717
+2025-09-29 11:30:08.468636 Epoch 21  	Train Loss = 2.67654 Val Loss = 2.69148
+2025-09-29 11:33:27.625515 Epoch 22  	Train Loss = 2.66311 Val Loss = 2.68694
+2025-09-29 11:36:46.654034 Epoch 23  	Train Loss = 2.65790 Val Loss = 2.68650
+2025-09-29 11:40:05.709916 Epoch 24  	Train Loss = 2.65302 Val Loss = 2.69349
+2025-09-29 11:43:24.663104 Epoch 25  	Train Loss = 2.64963 Val Loss = 2.69491
+2025-09-29 11:46:43.360261 Epoch 26  	Train Loss = 2.64777 Val Loss = 2.69422
+2025-09-29 11:50:02.177076 Epoch 27  	Train Loss = 2.64608 Val Loss = 2.68583
+2025-09-29 11:53:21.279460 Epoch 28  	Train Loss = 2.64345 Val Loss = 2.69768
+2025-09-29 11:56:40.120756 Epoch 29  	Train Loss = 2.64129 Val Loss = 2.69326
+2025-09-29 11:59:59.120896 Epoch 30  	Train Loss = 2.63863 Val Loss = 2.69423
+2025-09-29 12:03:17.655495 Epoch 31  	Train Loss = 2.62970 Val Loss = 2.69363
+2025-09-29 12:06:36.728970 Epoch 32  	Train Loss = 2.62971 Val Loss = 2.68993
+2025-09-29 12:09:55.723294 Epoch 33  	Train Loss = 2.62725 Val Loss = 2.69100
+2025-09-29 12:13:14.746988 Epoch 34  	Train Loss = 2.62756 Val Loss = 2.68967
+2025-09-29 12:16:33.753902 Epoch 35  	Train Loss = 2.62710 Val Loss = 2.68912
+2025-09-29 12:19:52.600366 Epoch 36  	Train Loss = 2.62673 Val Loss = 2.69254
+2025-09-29 12:23:11.524990 Epoch 37  	Train Loss = 2.62636 Val Loss = 2.69136
+2025-09-29 12:26:30.636932 Epoch 38  	Train Loss = 2.62696 Val Loss = 2.69230
+2025-09-29 12:29:49.627622 Epoch 39  	Train Loss = 2.62634 Val Loss = 2.69030
+2025-09-29 12:33:08.574537 Epoch 40  	Train Loss = 2.62524 Val Loss = 2.69261
+2025-09-29 12:36:27.360324 Epoch 41  	Train Loss = 2.62539 Val Loss = 2.69069
+2025-09-29 12:39:46.053527 Epoch 42  	Train Loss = 2.62570 Val Loss = 2.69075
+2025-09-29 12:43:04.984319 Epoch 43  	Train Loss = 2.62532 Val Loss = 2.69152
+2025-09-29 12:46:23.856054 Epoch 44  	Train Loss = 2.62504 Val Loss = 2.68990
+2025-09-29 12:49:42.819230 Epoch 45  	Train Loss = 2.62482 Val Loss = 2.69237
+2025-09-29 12:53:01.525408 Epoch 46  	Train Loss = 2.62403 Val Loss = 2.68944
+2025-09-29 12:56:20.335100 Epoch 47  	Train Loss = 2.62451 Val Loss = 2.69224
+2025-09-29 12:59:39.158099 Epoch 48  	Train Loss = 2.62411 Val Loss = 2.69133
+2025-09-29 13:02:58.014278 Epoch 49  	Train Loss = 2.62374 Val Loss = 2.69253
+2025-09-29 13:06:16.368790 Epoch 50  	Train Loss = 2.62376 Val Loss = 2.69000
+2025-09-29 13:09:03.305633 Epoch 51  	Train Loss = 2.62291 Val Loss = 2.69227
+2025-09-29 13:11:43.139521 Epoch 52  	Train Loss = 2.62298 Val Loss = 2.69353
+2025-09-29 13:13:51.254504 Epoch 53  	Train Loss = 2.62294 Val Loss = 2.69112
+2025-09-29 13:15:51.249985 Epoch 54  	Train Loss = 2.62259 Val Loss = 2.69291
+2025-09-29 13:17:51.191965 Epoch 55  	Train Loss = 2.62190 Val Loss = 2.69141
+2025-09-29 13:19:51.007238 Epoch 56  	Train Loss = 2.62182 Val Loss = 2.69150
+2025-09-29 13:21:50.593155 Epoch 57  	Train Loss = 2.62156 Val Loss = 2.69602
+Early stopping at epoch: 57
+Best at epoch 27:
+Train Loss = 2.64608
+Train RMSE = 5.22237, MAE = 2.60880, MAPE = 6.77576
+Val Loss = 2.68583
+Val RMSE = 5.63601, MAE = 2.73633, MAPE = 7.39781
+Saved Model: ../saved_models/STAEformer_LocalIntegrated_Star_Window_local_integrated_star_window-METRLA-2025-09-29-10-21-18.pt
+--------- Test ---------
+All Steps RMSE = 5.96571, MAE = 2.92717, MAPE = 7.93549
+Step 1 RMSE = 3.94881, MAE = 2.25300, MAPE = 5.45513
+Step 2 RMSE = 4.66589, MAE = 2.49113, MAPE = 6.25623
+Step 3 RMSE = 5.10648, MAE = 2.64169, MAPE = 6.81479
+Step 4 RMSE = 5.45298, MAE = 2.76429, MAPE = 7.27916
+Step 5 RMSE = 5.74298, MAE = 2.86686, MAPE = 7.68642
+Step 6 RMSE = 5.99976, MAE = 2.95685, MAPE = 8.04023
+Step 7 RMSE = 6.23043, MAE = 3.03678, MAPE = 8.34801
+Step 8 RMSE = 6.42937, MAE = 3.10837, MAPE = 8.62003
+Step 9 RMSE = 6.59902, MAE = 3.17140, MAPE = 8.87248
+Step 10 RMSE = 6.74218, MAE = 3.22780, MAPE = 9.08182
+Step 11 RMSE = 6.85859, MAE = 3.27847, MAPE = 9.28461
+Step 12 RMSE = 6.98033, MAE = 3.32954, MAPE = 9.48721
+Inference time: 10.84 s
